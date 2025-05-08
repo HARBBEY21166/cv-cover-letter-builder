@@ -5,7 +5,7 @@ interface GeminiResult {
   text: string;
   loading: boolean;
   error: string | null;
-  generate: () => Promise<void>;
+  generate: () => Promise<string>;
 }
 
 export function useGeminiApi(
@@ -36,14 +36,15 @@ Optimize my CV by reordering skills to match the requirements and highlight rele
     }
   };
 
-  const generate = async () => {
+  const generate = async (): Promise<string> => {
     if (!apiKey) {
       setError("API key is required");
-      return;
+      return "";
     }
 
     setLoading(true);
     setError(null);
+    setText(""); // Clear previous text
 
     try {
       const prompt = generatePrompt();
@@ -85,14 +86,20 @@ Optimize my CV by reordering skills to match the requirements and highlight rele
       
       if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
         const responseText = data.candidates[0].content.parts[0].text;
-        console.log("Extracted text:", responseText);
+        console.log("Extracted text length:", responseText.length);
+        
+        // Save the text to state
         setText(responseText);
+        
+        // Return the text directly
+        return responseText;
       } else {
         console.error("Invalid response format:", data);
         throw new Error("Invalid response format from Gemini API");
       }
     } catch (err) {
       setError((err as Error).message || "An error occurred");
+      return "";
     } finally {
       setLoading(false);
     }

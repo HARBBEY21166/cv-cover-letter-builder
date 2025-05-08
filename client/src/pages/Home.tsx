@@ -78,7 +78,8 @@ export default function Home() {
     });
     
     try {
-      await coverLetterApi.generate();
+      // This now returns the generated text directly
+      const generatedText = await coverLetterApi.generate();
       
       // Update the output state once the API call is complete
       if (coverLetterApi.error) {
@@ -87,31 +88,32 @@ export default function Home() {
           error: coverLetterApi.error,
           data: null
         });
+        showToast(coverLetterApi.error, "error");
+      } else if (!generatedText) {
+        throw new Error("No text was generated. Please try again.");
       } else {
-        console.log("Cover letter text:", coverLetterApi.text);
+        console.log("Cover letter generated text length:", generatedText.length);
+        
+        // Update state with the generated text
         setCoverLetterOutput({
           loading: false,
           error: null,
           data: { 
-            text: coverLetterApi.text || "",
+            text: generatedText,
             title: `Cover letter for ${formData.companyName}: ${formData.positionTitle}`,
             date: new Date().toLocaleDateString()
           }
         });
-      }
-      
-      if (!coverLetterApi.error) {
+        
         showToast("Cover letter generated successfully");
-      } else {
-        showToast(coverLetterApi.error, "error");
       }
     } catch (error) {
       setCoverLetterOutput({
         loading: false,
-        error: "Failed to generate cover letter. Please try again.",
+        error: (error as Error).message || "Failed to generate cover letter. Please try again.",
         data: null
       });
-      showToast("Failed to generate cover letter", "error");
+      showToast((error as Error).message || "Failed to generate cover letter", "error");
     }
   };
   
@@ -130,7 +132,8 @@ export default function Home() {
     });
     
     try {
-      await cvApi.generate();
+      // This now returns the generated text directly
+      const generatedText = await cvApi.generate();
       
       // Update the output state once the API call is complete
       if (cvApi.error) {
@@ -139,31 +142,32 @@ export default function Home() {
           error: cvApi.error,
           data: null
         });
+        showToast(cvApi.error, "error");
+      } else if (!generatedText) {
+        throw new Error("No text was generated. Please try again.");
       } else {
-        console.log("CV text:", cvApi.text);
+        console.log("CV generated text length:", generatedText.length);
+        
+        // Update state with the generated text
         setCvOutput({
           loading: false,
           error: null,
           data: { 
-            text: cvApi.text || "",
+            text: generatedText,
             title: `Optimized CV for ${formData.positionTitle}`,
             date: new Date().toLocaleDateString()
           }
         });
-      }
-      
-      if (!cvApi.error) {
+        
         showToast("CV updated successfully");
-      } else {
-        showToast(cvApi.error, "error");
       }
     } catch (error) {
       setCvOutput({
         loading: false,
-        error: "Failed to update CV. Please try again.",
+        error: (error as Error).message || "Failed to update CV. Please try again.",
         data: null
       });
-      showToast("Failed to update CV", "error");
+      showToast((error as Error).message || "Failed to update CV", "error");
     }
   };
   
