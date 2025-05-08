@@ -48,7 +48,8 @@ Optimize my CV by reordering skills to match the requirements and highlight rele
     try {
       const prompt = generatePrompt();
       
-      const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey, {
+      // Using the gemini-2.0-flash model as requested
+      const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

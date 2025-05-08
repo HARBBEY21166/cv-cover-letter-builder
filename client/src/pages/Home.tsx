@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import InputSection from "@/components/InputSection";
 import OutputSection from "@/components/OutputSection";
 import ApiKeyModal from "@/components/ApiKeyModal";
 import Toast from "@/components/Toast";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useGeminiApi } from "@/hooks/useGeminiApi";
 import { FormData, ApiKeyStatus, OutputType } from "@/types";
 import { Key } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,10 @@ export default function Home() {
     data: null
   });
   
+  // Set up Gemini API hooks
+  const coverLetterApi = useGeminiApi(apiKey, "coverLetter", formData);
+  const cvApi = useGeminiApi(apiKey, "cv", formData);
+  
   // Toast notification state
   const [toast, setToast] = useState({
     visible: false,
@@ -56,6 +61,92 @@ export default function Home() {
   // API Key management
   const getApiKeyStatus = (): ApiKeyStatus => {
     return apiKey ? "configured" : "not-configured";
+  };
+  
+  // Handle cover letter generation
+  const handleGenerateCoverLetter = async () => {
+    if (getApiKeyStatus() !== "configured") {
+      showToast("Please configure your API key first", "error");
+      setIsApiKeyModalOpen(true);
+      return;
+    }
+    
+    setCoverLetterOutput({
+      loading: true,
+      error: null,
+      data: null
+    });
+    
+    try {
+      await coverLetterApi.generate();
+      
+      // Update the output state once the API call is complete
+      setCoverLetterOutput({
+        loading: false,
+        error: coverLetterApi.error,
+        data: coverLetterApi.error ? null : { 
+          text: coverLetterApi.text,
+          title: `Cover letter for ${formData.companyName}: ${formData.positionTitle}`,
+          date: new Date().toLocaleDateString()
+        }
+      });
+      
+      if (!coverLetterApi.error) {
+        showToast("Cover letter generated successfully");
+      } else {
+        showToast(coverLetterApi.error, "error");
+      }
+    } catch (error) {
+      setCoverLetterOutput({
+        loading: false,
+        error: "Failed to generate cover letter. Please try again.",
+        data: null
+      });
+      showToast("Failed to generate cover letter", "error");
+    }
+  };
+  
+  // Handle CV update
+  const handleUpdateCV = async () => {
+    if (getApiKeyStatus() !== "configured") {
+      showToast("Please configure your API key first", "error");
+      setIsApiKeyModalOpen(true);
+      return;
+    }
+    
+    setCvOutput({
+      loading: true,
+      error: null,
+      data: null
+    });
+    
+    try {
+      await cvApi.generate();
+      
+      // Update the output state once the API call is complete
+      setCvOutput({
+        loading: false,
+        error: cvApi.error,
+        data: cvApi.error ? null : { 
+          text: cvApi.text,
+          title: `Optimized CV for ${formData.positionTitle}`,
+          date: new Date().toLocaleDateString()
+        }
+      });
+      
+      if (!cvApi.error) {
+        showToast("CV updated successfully");
+      } else {
+        showToast(cvApi.error, "error");
+      }
+    } catch (error) {
+      setCvOutput({
+        loading: false,
+        error: "Failed to update CV. Please try again.",
+        data: null
+      });
+      showToast("Failed to update CV", "error");
+    }
   };
   
   return (
@@ -87,24 +178,8 @@ export default function Home() {
           onChange={handleFormDataChange}
           apiKeyStatus={getApiKeyStatus()}
           onApiKeyModalOpen={() => setIsApiKeyModalOpen(true)}
-          onGenerateCoverLetter={() => {
-            if (getApiKeyStatus() !== "configured") {
-              showToast("Please configure your API key first", "error");
-              setIsApiKeyModalOpen(true);
-              return;
-            }
-            setCoverLetterOutput({...coverLetterOutput, loading: true});
-            // API call will be handled in parent component
-          }}
-          onUpdateCV={() => {
-            if (getApiKeyStatus() !== "configured") {
-              showToast("Please configure your API key first", "error");
-              setIsApiKeyModalOpen(true);
-              return;
-            }
-            setCvOutput({...cvOutput, loading: true});
-            // API call will be handled in parent component
-          }}
+          onGenerateCoverLetter={handleGenerateCoverLetter}
+          onUpdateCV={handleUpdateCV}
           showToast={showToast}
         />
         
