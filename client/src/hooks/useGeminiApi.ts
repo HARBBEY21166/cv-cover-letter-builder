@@ -81,9 +81,14 @@ Optimize my CV by reordering skills to match the requirements and highlight rele
       const data = await response.json();
       
       // Extract the generated text from the response
+      console.log("Gemini API response:", JSON.stringify(data));
+      
       if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-        setText(data.candidates[0].content.parts[0].text);
+        const responseText = data.candidates[0].content.parts[0].text;
+        console.log("Extracted text:", responseText);
+        setText(responseText);
       } else {
+        console.error("Invalid response format:", data);
         throw new Error("Invalid response format from Gemini API");
       }
     } catch (err) {

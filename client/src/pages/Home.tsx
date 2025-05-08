@@ -81,15 +81,24 @@ export default function Home() {
       await coverLetterApi.generate();
       
       // Update the output state once the API call is complete
-      setCoverLetterOutput({
-        loading: false,
-        error: coverLetterApi.error,
-        data: coverLetterApi.error ? null : { 
-          text: coverLetterApi.text,
-          title: `Cover letter for ${formData.companyName}: ${formData.positionTitle}`,
-          date: new Date().toLocaleDateString()
-        }
-      });
+      if (coverLetterApi.error) {
+        setCoverLetterOutput({
+          loading: false,
+          error: coverLetterApi.error,
+          data: null
+        });
+      } else {
+        console.log("Cover letter text:", coverLetterApi.text);
+        setCoverLetterOutput({
+          loading: false,
+          error: null,
+          data: { 
+            text: coverLetterApi.text || "",
+            title: `Cover letter for ${formData.companyName}: ${formData.positionTitle}`,
+            date: new Date().toLocaleDateString()
+          }
+        });
+      }
       
       if (!coverLetterApi.error) {
         showToast("Cover letter generated successfully");
@@ -124,15 +133,24 @@ export default function Home() {
       await cvApi.generate();
       
       // Update the output state once the API call is complete
-      setCvOutput({
-        loading: false,
-        error: cvApi.error,
-        data: cvApi.error ? null : { 
-          text: cvApi.text,
-          title: `Optimized CV for ${formData.positionTitle}`,
-          date: new Date().toLocaleDateString()
-        }
-      });
+      if (cvApi.error) {
+        setCvOutput({
+          loading: false,
+          error: cvApi.error,
+          data: null
+        });
+      } else {
+        console.log("CV text:", cvApi.text);
+        setCvOutput({
+          loading: false,
+          error: null,
+          data: { 
+            text: cvApi.text || "",
+            title: `Optimized CV for ${formData.positionTitle}`,
+            date: new Date().toLocaleDateString()
+          }
+        });
+      }
       
       if (!cvApi.error) {
         showToast("CV updated successfully");

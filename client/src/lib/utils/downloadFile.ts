@@ -1,4 +1,12 @@
 export const downloadTextFile = (text: string, filename: string) => {
+  console.log("Downloading text file:", { textLength: text?.length, filename });
+  
+  // Safety check - ensure text is not empty
+  if (!text || text.trim() === '') {
+    console.error("Cannot download empty text file");
+    return;
+  }
+  
   // Create a blob with the text content
   const blob = new Blob([text], { type: 'text/plain' });
   
