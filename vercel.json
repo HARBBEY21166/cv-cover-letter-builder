@@ -1,5 +1,14 @@
 {
+  "version": 2,
   "buildCommand": "bash ./build.sh",
   "outputDirectory": "dist",
-  "installCommand": "echo 'Skipping install'"
+  "installCommand": "echo 'Skipping install'",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    }
+  ]
 }
