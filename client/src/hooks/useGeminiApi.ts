@@ -20,19 +20,39 @@ export function useGeminiApi(
   const generatePrompt = () => {
     // Format the prompt based on the type
     if (promptType === "coverLetter") {
-      return `Generate a cover letter using:
-- My qualifications: ${formData.cvContent}
-- For ${formData.positionTitle} at ${formData.companyName}
-- Job requirements: ${formData.jobRequirements}
-- Job description: ${formData.jobDescription}
-Output should be professional and tailored to this specific role with a proper salutation, body, and closing.`;
+      return `Generate a cover letter using EXACTLY these rules:
+1. HEADER: Use CV's contact info in this order:
+   Name | Phone | Email | LinkedIn | Portfolio  
+   (No labels like 'Email:', just raw data)
+
+2. BODY CONTENT MUST:
+   - Reference 2 specific projects from CV
+   - Mention 3 technical skills from the job requirements
+   - Use only verifiable facts from the CV
+   - Keep paragraphs under 3 lines
+
+3. FORBIDDEN:
+   - Any [placeholders] 
+   - Unsubstantiated claims
+   - Reformatted links
+   - Skills not in original CV
+
+My CV Content: ${formData.cvContent}
+Position Title: ${formData.positionTitle}
+Company Name: ${formData.companyName}
+Job Requirements: ${formData.jobRequirements}
+Job Description: ${formData.jobDescription}`;
     } else {
-      return `Generate an updated CV using:
-- My current CV: ${formData.cvContent}
-- For ${formData.positionTitle} at ${formData.companyName}
-- Job requirements: ${formData.jobRequirements}
-- Job description: ${formData.jobDescription}
-Optimize my CV by reordering skills to match the requirements and highlight relevant experience for this specific role. Output should be a complete, professional CV.`;
+      return `Generate a cv using EXACTLY these rules:
+
+- Update my CV from your knowledge base and based on the requirements mentioned in job details
+- PRESERVE ALL EXISTING LINKS CHARACTER-FOR-CHARACTER
+
+My Current CV: ${formData.cvContent}
+Position Title: ${formData.positionTitle}
+Company Name: ${formData.companyName}
+Job Requirements: ${formData.jobRequirements}
+Job Description: ${formData.jobDescription}`;
     }
   };
 
