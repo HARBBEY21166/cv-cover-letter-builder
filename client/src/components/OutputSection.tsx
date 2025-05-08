@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy, Download, AlertCircle } from "lucide-react";
+import { Copy, Download, AlertCircle, RotateCcw } from "lucide-react";
 import { FormData, OutputType } from "@/types";
 import { downloadTextFile } from "@/lib/utils/downloadFile";
 
@@ -10,6 +10,8 @@ interface OutputSectionProps {
   cvOutput: OutputType;
   formData: FormData;
   showToast: (message: string, type?: "success" | "error") => void;
+  onClearCoverLetter?: () => void;
+  onClearCV?: () => void;
 }
 
 export default function OutputSection({
@@ -17,6 +19,8 @@ export default function OutputSection({
   cvOutput,
   formData,
   showToast,
+  onClearCoverLetter,
+  onClearCV,
 }: OutputSectionProps) {
   const getCurrentDate = () => {
     return new Date().toLocaleDateString("en-US", {
@@ -87,6 +91,21 @@ export default function OutputSection({
               disabled={!coverLetterOutput.data}
             >
               <Download className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition"
+              title="Clear output"
+              onClick={() => {
+                if (onClearCoverLetter) {
+                  onClearCoverLetter();
+                  showToast("Cover letter cleared");
+                }
+              }}
+              disabled={!coverLetterOutput.data}
+            >
+              <RotateCcw className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -221,6 +240,21 @@ export default function OutputSection({
               disabled={!cvOutput.data}
             >
               <Download className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition"
+              title="Clear output"
+              onClick={() => {
+                if (onClearCV) {
+                  onClearCV();
+                  showToast("CV cleared");
+                }
+              }}
+              disabled={!cvOutput.data}
+            >
+              <RotateCcw className="h-4 w-4" />
             </Button>
           </div>
         </div>

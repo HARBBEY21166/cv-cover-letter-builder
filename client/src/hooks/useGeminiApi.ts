@@ -18,43 +18,83 @@ export function useGeminiApi(
   const [error, setError] = useState<string | null>(null);
 
   const generatePrompt = () => {
-    // Format the prompt based on the type
-    if (promptType === "coverLetter") {
-      return `Generate a cover letter using EXACTLY these rules:
-1. HEADER: Use CV's contact info in this order:
-   Name | Phone | Email | LinkedIn | Portfolio  
-   (No labels like 'Email:', just raw data)
+  if (promptType === "coverLetter") {
+    return `Write a professional cover letter based on my CV and this job posting. Follow this format and these rules strictly:
 
-2. BODY CONTENT MUST:
-   - Reference 2 specific projects from CV
-   - Mention 3 technical skills from the job requirements
-   - Use only verifiable facts from the CV
-   - Keep paragraphs under 3 lines
+FORMAT:
+1. Top Contact Block: 
+   Abbey Aina  
+   olamilekansunday445@gmail.com  
+   [Today's Date]  
+   Hiring Manager or Team Name  
+   Company Name  
 
-3. FORBIDDEN:
-   - Any [placeholders] 
-   - Unsubstantiated claims
-   - Reformatted links
-   - Skills not in original CV
+2. Start with a warm, clear statement of interest, referencing the position and company.
 
-My CV Content: ${formData.cvContent}
-Position Title: ${formData.positionTitle}
-Company Name: ${formData.companyName}
-Job Requirements: ${formData.jobRequirements}
-Job Description: ${formData.jobDescription}`;
-    } else {
-      return `Generate a cv using EXACTLY these rules:
+3. In 1–2 short paragraphs, highlight relevant skills or experiences from the CV that match job requirements.
 
-- Update my CV from your knowledge base and based on the requirements mentioned in job details
-- PRESERVE ALL EXISTING LINKS CHARACTER-FOR-CHARACTER
+4. Include a bullet list of 2–3 contributions or strengths based on my CV and job role.
 
-My Current CV: ${formData.cvContent}
-Position Title: ${formData.positionTitle}
-Company Name: ${formData.companyName}
-Job Requirements: ${formData.jobRequirements}
-Job Description: ${formData.jobDescription}`;
-    }
-  };
+5. In the closing paragraph:
+   - Reaffirm interest
+   - Mention values or mission fit
+   - Thank the reader
+
+6. Sign off professionally with “Best regards,” followed by my full name.
+
+STRICT RULES:
+- Use only verifiable content from my CV.
+- Do NOT include placeholders or imaginary projects.
+- Do NOT duplicate links already found in the CV.
+- Do NOT add the job ad text itself.
+- Keep tone enthusiastic but professional.
+- Limit paragraphs to 3 lines max.
+
+MY CV CONTENT:
+${formData.cvContent}
+
+JOB TITLE:
+${formData.positionTitle}
+
+COMPANY NAME:
+${formData.companyName}
+
+JOB REQUIREMENTS:
+${formData.jobRequirements}
+
+FULL JOB DESCRIPTION:
+${formData.jobDescription}`;
+  } else {
+    return `Update and rewrite my CV professionally based on the job role below. 
+
+INSTRUCTIONS:
+- Keep the structure appropriate for tech/design roles
+- Emphasize relevant achievements and skills from my CV that match the job requirements
+- DO NOT change or reformat any existing links — preserve them exactly
+- Tailor tone and content to the position
+- Keep the structure and links from my original CV.
+- Improve clarity, grammar, and flow professionally.
+- DO NOT add introductory text like "Here's your CV".
+- DO NOT duplicate links already in the CV.
+
+
+MY CURRENT CV:
+${formData.cvContent}
+
+JOB TITLE:
+${formData.positionTitle}
+
+COMPANY NAME:
+${formData.companyName}
+
+JOB REQUIREMENTS:
+${formData.jobRequirements}
+
+FULL JOB DESCRIPTION:
+${formData.jobDescription}`;
+  }
+};
+
 
   const generate = async (): Promise<string> => {
     if (!apiKey) {
@@ -64,35 +104,33 @@ Job Description: ${formData.jobDescription}`;
 
     setLoading(true);
     setError(null);
-    setText(""); // Clear previous text
+    setText("");
 
     try {
       const prompt = generatePrompt();
-      
-      // Using the gemini-2.0-flash model as requested
-      const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + apiKey, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt,
-                },
-              ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 8192,
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        }),
-      });
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [{ text: prompt }],
+              },
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              topK: 40,
+              topP: 0.95,
+              maxOutputTokens: 8192,
+            },
+          }),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -100,21 +138,14 @@ Job Description: ${formData.jobDescription}`;
       }
 
       const data = await response.json();
-      
-      // Extract the generated text from the response
       console.log("Gemini API response:", JSON.stringify(data));
-      
-      if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
-        const responseText = data.candidates[0].content.parts[0].text;
-        console.log("Extracted text length:", responseText.length);
-        
-        // Save the text to state
+
+      const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (responseText) {
         setText(responseText);
-        
-        // Return the text directly
         return responseText;
       } else {
-        console.error("Invalid response format:", data);
         throw new Error("Invalid response format from Gemini API");
       }
     } catch (err) {

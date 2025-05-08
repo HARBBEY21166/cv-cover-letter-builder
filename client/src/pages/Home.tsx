@@ -171,6 +171,23 @@ export default function Home() {
     }
   };
   
+  // Clear functions for the restart buttons
+  const handleClearCoverLetter = () => {
+    setCoverLetterOutput({
+      loading: false,
+      error: null,
+      data: null
+    });
+  };
+  
+  const handleClearCV = () => {
+    setCvOutput({
+      loading: false,
+      error: null,
+      data: null
+    });
+  };
+  
   return (
     <div className="container mx-auto px-4 py-8 max-w-7xl">
       {/* Header Section */}
@@ -211,6 +228,8 @@ export default function Home() {
           cvOutput={cvOutput}
           formData={formData}
           showToast={showToast}
+          onClearCoverLetter={handleClearCoverLetter}
+          onClearCV={handleClearCV}
         />
       </div>
       
