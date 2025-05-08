@@ -1,0 +1,10 @@
+{
+  "name": "cv-cover-letter-client",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "vercel-build": "vite build"
+  }
+}
